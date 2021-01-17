@@ -9,18 +9,29 @@ export default function App() {
 	const [interv, setInterv] = useState();
 	const [startTimer, setStartTimer] = useState(true);
 	const [wait, setWait] = useState(false);
-	const [stopTime, setStopTime] = useState();
+	const [stopTime, setStopTime] = useState({ sec: 0, min: 0, hours: 0 });
 
-	const streamFunc = (thisDate = new Date()) => {
+	const resetTime = {
+		sec: 0,
+		min: 0,
+		hours: 0,
+	};
+
+	const streamFunc = (timeArgs = stopTime) => {
+		let time = timeArgs;
 		return interval(1000).pipe(
-			map((e) => {
-				const newDate = new Date() - thisDate;
-				const sec = Math.abs(Math.floor(newDate / 1000) % 60); //sek
-				const min = Math.abs(Math.floor(newDate / 1000 / 60) % 60); //min
-				const hours = Math.abs(
-					Math.floor(newDate / 1000 / 60 / 60) % 24
-				); //hours
-				setTimer(`${hours}:${min}:${sec}`);
+			map(() => {
+				time.sec++;
+				if (time.sec > 60) {
+					time.min++;
+					time.sec = 0;
+				}
+				if (time.min > 60) {
+					time.hours++;
+					time.min = 0;
+				}
+				setTimer(`${time.hours}:${time.min}:${time.sec}`);
+				setStopTime(time);
 			})
 		);
 	};
@@ -32,7 +43,7 @@ export default function App() {
 				setInterv(subscribe);
 				setWait(false);
 			} else {
-				const subscribe = streamFunc().subscribe();
+				const subscribe = streamFunc(resetTime).subscribe();
 				setInterv(subscribe);
 			}
 			setStartTimer(false);
@@ -47,7 +58,6 @@ export default function App() {
 		if (!startTimer) {
 			setStartTimer(true);
 			setWait(true);
-			setStopTime(new Date());
 			interv.unsubscribe();
 		}
 	};
@@ -55,7 +65,7 @@ export default function App() {
 	const handlerReset = () => {
 		setTimer("0:0:0");
 		const startFunc = () => {
-			const subscribe = streamFunc().subscribe();
+			const subscribe = streamFunc(resetTime).subscribe();
 			setInterv(subscribe);
 		};
 		if (startTimer) {
