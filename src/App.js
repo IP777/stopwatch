@@ -26,7 +26,6 @@ export default function App() {
 	};
 
 	const handlerStartStop = () => {
-		console.log(wait);
 		if (startTimer) {
 			if (wait) {
 				const subscribe = streamFunc(stopTime).subscribe();
