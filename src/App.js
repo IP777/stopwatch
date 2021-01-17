@@ -8,11 +8,12 @@ export default function App() {
 	const [timer, setTimer] = useState("0:0:0");
 	const [interv, setInterv] = useState();
 	const [startTimer, setStartTimer] = useState(true);
+	const [wait, setWait] = useState(false);
+	const [stopTime, setStopTime] = useState();
 
-	const streamFunc = () => {
-		const thisDate = new Date();
+	const streamFunc = (thisDate = new Date()) => {
 		return interval(1000).pipe(
-			map(() => {
+			map((e) => {
 				const newDate = new Date() - thisDate;
 				const sec = Math.abs(Math.floor(newDate / 1000) % 60); //sek
 				const min = Math.abs(Math.floor(newDate / 1000 / 60) % 60); //min
@@ -25,9 +26,16 @@ export default function App() {
 	};
 
 	const handlerStartStop = () => {
+		console.log(wait);
 		if (startTimer) {
-			const subscribe = streamFunc().subscribe();
-			setInterv(subscribe);
+			if (wait) {
+				const subscribe = streamFunc(stopTime).subscribe();
+				setInterv(subscribe);
+				setWait(false);
+			} else {
+				const subscribe = streamFunc().subscribe();
+				setInterv(subscribe);
+			}
 			setStartTimer(false);
 		} else {
 			setTimer("0:0:0");
@@ -36,7 +44,14 @@ export default function App() {
 		}
 	};
 
-	const handlerWait = () => {};
+	const handlerWait = () => {
+		if (!startTimer) {
+			setStartTimer(true);
+			setWait(true);
+			setStopTime(new Date());
+			interv.unsubscribe();
+		}
+	};
 
 	const handlerReset = () => {
 		setTimer("0:0:0");
@@ -77,7 +92,7 @@ export default function App() {
 				type="button"
 				value="Wait"
 				id="btnStop"
-				onClick={handlerWait}
+				onDoubleClick={handlerWait}
 			/>
 			<input
 				type="button"
