@@ -3,6 +3,7 @@ import "./App.css";
 import { useState } from "react";
 import { interval } from "rxjs";
 import { map } from "rxjs/operators";
+import CustomButton from "./copmonents/customButton";
 
 export default function App() {
 	const [timer, setTimer] = useState("0:0:0");
@@ -55,6 +56,7 @@ export default function App() {
 	};
 
 	const handlerWait = () => {
+		console.log("Double Click");
 		if (!startTimer) {
 			setStartTimer(true);
 			setWait(true);
@@ -82,27 +84,13 @@ export default function App() {
 		<div className="App">
 			<h1>{timer}</h1>
 			{startTimer ? (
-				<input
-					id="btn"
-					type="button"
-					value="Start"
-					onClick={handlerStartStop}
-				/>
+				<input type="button" value="Start" onClick={handlerStartStop} />
 			) : (
-				<input
-					id="btn"
-					type="button"
-					value="Stop"
-					onClick={handlerStartStop}
-				/>
+				<input type="button" value="Stop" onClick={handlerStartStop} />
 			)}
 
-			<input
-				type="button"
-				value="Wait"
-				id="btnStop"
-				onDoubleClick={handlerWait}
-			/>
+			<CustomButton trottleTime={200} value="Wait" click={handlerWait} />
+
 			<input
 				type="button"
 				value="Reset"
